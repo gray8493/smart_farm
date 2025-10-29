@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lỗi - Farm Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .error-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: none;
+            max-width: 600px;
+            width: 100%;
+        }
+        .error-icon {
+            font-size: 4rem;
+            color: #dc3545;
+            margin-bottom: 1rem;
+        }
+        .error-code {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 0.5rem;
+        }
+        .error-message {
+            color: #6c757d;
+            margin-bottom: 2rem;
+        }
+        .btn-custom {
+            border-radius: 25px;
+            padding: 10px 30px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-primary-custom {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+        }
+        .btn-primary-custom:hover {
+            background: linear-gradient(45deg, #5a67d8, #6b46c1);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .btn-outline-custom {
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+        .btn-outline-custom:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .timestamp {
+            font-size: 0.875rem;
+            color: #adb5bd;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="error-card card p-5 text-center">
+                        <div class="error-icon">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+                        <h1 class="error-code" th:text="${status}">500</h1>
+                        <h4 class="card-title mb-3">Lỗi Nội Bộ Máy Chủ</h4>
+                        <p class="error-message lead">
+                            Xin lỗi, đã xảy ra lỗi không mong muốn trong khi xử lý yêu cầu của bạn.
+                        </p>
+
+                        <div class="mb-4">
+                            <p class="mb-2">Chi tiết lỗi:</p>
+                            <div class="alert alert-danger" role="alert" th:if="${message}">
+                                <strong>Lỗi:</strong> <span th:text="${message}">Internal Server Error</span>
+                            </div>
+                            <div class="alert alert-warning" role="alert" th:if="${error}">
+                                <strong>Loại lỗi:</strong> <span th:text="${error}">Internal Server Error</span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center gap-3 flex-wrap">
+                            <a href="/" class="btn btn-custom btn-primary-custom">
+                                <i class="bi bi-house-door me-2"></i>Về Trang Chủ
+                            </a>
+                            <button onclick="window.history.back()" class="btn btn-custom btn-outline-custom">
+                                <i class="bi bi-arrow-left me-2"></i>Quay Lại
+                            </button>
+                            <button onclick="window.location.reload()" class="btn btn-custom btn-outline-custom">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Tải Lại Trang
+                            </button>
+                        </div>
+
+                        <div class="timestamp">
+                            <small>
+                                Thời gian xảy ra lỗi: <span th:text="${#temporals.format(timestamp, 'dd/MM/yyyy HH:mm:ss')}">22/10/2025 14:28:25</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto refresh after 30 seconds for temporary errors
+        let refreshTimeout = setTimeout(() => {
+            if (confirm('Trang web gặp lỗi. Bạn có muốn thử tải lại trang không?')) {
+                window.location.reload();
+            }
+        }, 30000);
+
+        // Clear timeout if user interacts
+        document.addEventListener('click', () => {
+            clearTimeout(refreshTimeout);
+        });
+
+        // Log error details to console for debugging
+        console.error('Application Error:', {
+            status: '[(${status})]',
+            error: '[(${error})]',
+            message: '[(${message})]',
+            timestamp: '[(${timestamp})]'
+        });
+    </script>
+</body>
+</html>

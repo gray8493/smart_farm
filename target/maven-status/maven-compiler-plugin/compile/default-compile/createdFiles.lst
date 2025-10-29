@@ -1,0 +1,5 @@
+com\farm\repository\SensorDataRepository.class
+com\farm\service\FarmService.class
+com\farm\model\SensorData.class
+com\farm\FarmManagementApplication.class
+com\farm\controller\FarmController.class
