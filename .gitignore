@@ -1,0 +1,28 @@
+# Maven
+target/
+*.jar
+*.war
+*.ear
+*.class
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite
+
+# Git LFS
+# Uncomment if using Git LFS
+*.jar filter=lfs diff=lfs merge=lfs -text
