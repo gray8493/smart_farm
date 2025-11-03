@@ -6,31 +6,713 @@
     <title>Farm Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        /* Enhanced Global Styles */
+        body {
+            background: linear-gradient(135deg, #f0f8e8 0%, #e8f5e8 30%, #d4edda 70%, #c8e6c9 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+        }
+        
+        /* Subtle farm pattern overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(76, 175, 80, 0.1) 2px, transparent 2px),
+                radial-gradient(circle at 80% 80%, rgba(139, 195, 74, 0.08) 3px, transparent 3px),
+                radial-gradient(circle at 40% 60%, rgba(104, 159, 56, 0.06) 2px, transparent 2px);
+            background-size: 100px 100px, 150px 150px, 80px 80px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Enhanced Farm Navbar */
+        .farm-navbar {
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c23 50%, #5a8c2f 100%);
+            position: relative;
+            overflow: hidden;
+            border-bottom: 3px solid #6b8e23;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .farm-navbar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 1px, transparent 1px),
+                radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 20px 20px, 15px 15px;
+            pointer-events: none;
+        }
+        
+        .farm-navbar::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(to right,
+                #4a7c23 0%, #6b8e23 25%, #8fbc8f 50%, #6b8e23 75%, #4a7c23 100%);
+            clip-path: polygon(0 0, 5% 100%, 10% 0, 15% 100%, 20% 0, 25% 100%, 30% 0, 35% 100%, 40% 0, 45% 100%, 50% 0, 55% 100%, 60% 0, 65% 100%, 70% 0, 75% 100%, 80% 0, 85% 100%, 90% 0, 95% 100%, 100% 0);
+        }
+        
+        .farm-brand {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.4rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .farm-brand i {
+            margin-right: 8px;
+            font-size: 1.6rem;
+            animation: sway 3s ease-in-out infinite;
+        }
+        
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+        
+        /* Enhanced Notification System */
+        .notification-container {
+            position: relative;
+            margin-left: auto;
+            margin-right: 15px;
+        }
+        
+        .notification-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            cursor: pointer;
+            position: relative;
+            padding: 12px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .notification-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: linear-gradient(45deg, #ff6b6b, #ff5252);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-3px); }
+            60% { transform: translateY(-2px); }
+        }
+        
+        .notification-dropdown {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            width: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+            z-index: 9999;
+            margin-top: 10px;
+            transform: translateX(100%);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(15px);
+        }
+        
+        .notification-dropdown.show {
+            transform: translateX(0);
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .notification-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            color: #333;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px 15px 0 0;
+            font-size: 1.1rem;
+        }
+        
+        .notification-item {
+            padding: 18px 25px;
+            border-bottom: 1px solid #f1f3f4;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .notification-item:hover {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            transform: translateX(5px);
+        }
+        
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        
+        .notification-item.stranger-alert {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border-left: 4px solid #dc3545;
+        }
+        
+        .notification-item.stranger-alert:hover {
+            background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+        }
+        
+        .notification-item.unread {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border-left: 4px solid #28a745;
+        }
+        
+        .notification-time {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+        
+        .notification-message {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .no-notifications {
+            padding: 40px 25px;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .mark-all-read {
+            padding: 15px 25px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 0 0 15px 15px;
+            cursor: pointer;
+            color: #007bff;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .mark-all-read:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            color: #0056b3;
+        }
+
+        /* Enhanced Weather Forecast Styles */
+        .weather-card {
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+        
+        .weather-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        
+        .weather-card.sunny {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            box-shadow: 0 8px 25px rgba(255, 234, 167, 0.3);
+        }
+        
+        .weather-card.cloudy {
+            background: linear-gradient(135deg, #b2bec3 0%, #636e72 100%);
+            box-shadow: 0 8px 25px rgba(178, 190, 195, 0.3);
+        }
+        
+        .weather-card.rainy {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            box-shadow: 0 8px 25px rgba(116, 185, 255, 0.3);
+        }
+        
+        .weather-card.stormy {
+            background: linear-gradient(135deg, #636e72 0%, #2d3436 100%);
+            box-shadow: 0 8px 25px rgba(99, 110, 114, 0.3);
+        }
+        
+        .weather-icon {
+            font-size: 3rem;
+            margin: 15px 0;
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        .weather-icon.sunny {
+            color: #f39c12;
+            text-shadow: 0 0 15px rgba(243, 156, 18, 0.6);
+        }
+        
+        .weather-icon.cloudy {
+            color: #7f8c8d;
+        }
+        
+        .weather-icon.rainy {
+            color: #3498db;
+        }
+        
+        .weather-icon.stormy {
+            color: #e74c3c;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        /* Enhanced Control Section Styles */
+        .farm-control-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            border: 2px solid #6b8e23;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .farm-control-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #4a7c23, #6b8e23, #8fbc8f);
+        }
+        
+        .farm-switch {
+            position: relative;
+            display: inline-block;
+            width: 85px;
+            height: 45px;
+            margin-right: 15px;
+        }
+        
+        .farm-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .farm-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 45px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .farm-slider:before {
+            position: absolute;
+            content: "";
+            height: 37px;
+            width: 37px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        input:checked + .farm-slider {
+            background: linear-gradient(135deg, #4a7c23, #6b8e23);
+        }
+        
+        input:checked + .farm-slider:before {
+            transform: translateX(40px);
+        }
+        
+        .farm-control-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 15px;
+            border-left: 5px solid #6b8e23;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .farm-control-item:hover {
+            background: rgba(255,255,255,0.95);
+            transform: translateX(8px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .control-icon {
+            font-size: 1.8rem;
+            margin-right: 18px;
+            color: #4a7c23;
+        }
+        
+        .control-label {
+            font-weight: 600;
+            color: #2d5016;
+            font-size: 1.1rem;
+        }
+
+        /* Enhanced Status Cards */
+        .status-card {
+            border-radius: 20px;
+            border: none;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+        
+        .status-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        
+        .status-card.bg-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        }
+        
+        .status-card.bg-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        }
+        
+        .status-card.bg-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+        }
+        
+        .status-card .card-body {
+            padding: 2rem;
+        }
+        
+        .status-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .status-icon {
+            font-size: 4rem;
+            opacity: 0.9;
+            animation: pulse 3s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Enhanced Action Buttons */
+        .action-card {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn-custom {
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        /* Enhanced Data Table */
+        .data-table-card {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            background: linear-gradient(135deg, #f8fff9 0%, #ffffff 100%);
+            backdrop-filter: blur(10px);
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, #4a7c23 0%, #6b8e23 50%, #8fbc8f 100%);
+            border: none;
+            padding: 1.2rem 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: white;
+            position: relative;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .table thead th::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(to bottom, #8fbc8f, #6b8e23);
+        }
+        
+        .table tbody tr {
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 4px 15px rgba(74, 124, 35, 0.15);
+        }
+        
+        .table tbody td {
+            padding: 1.2rem 1rem;
+            border-color: #d4edda;
+            vertical-align: middle;
+            font-weight: 500;
+            color: #2d5016;
+        }
+        
+        .table tbody tr:nth-child(even) {
+            background: rgba(232, 245, 232, 0.5);
+        }
+        
+        .table tbody tr:nth-child(even):hover {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        }
+        
+        .badge-custom {
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+        
+        .badge-custom:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+        
+        .badge-custom.bg-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .badge-custom.bg-primary {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .badge-custom.bg-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .data-icon {
+            font-size: 1.2rem;
+            margin-right: 8px;
+        }
+        
+        .temperature-icon { color: #e74c3c; }
+        .moisture-icon { color: #3498db; }
+        .animal-icon { color: #f39c12; }
+        
+        /* Animated row numbers */
+        .table tbody tr td:first-child {
+            font-weight: 700;
+            color: #4a7c23;
+            position: relative;
+        }
+        
+        .table tbody tr td:first-child::before {
+            content: '#';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b8e23;
+            font-weight: bold;
+        }
+        
+        /* Loading state for table */
+        .table-loading {
+            padding: 2rem;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .table-loading .loading-spinner {
+            margin: 0 auto 1rem auto;
+        }
+
+        /* Enhanced Footer */
+        .custom-footer {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-top: 3px solid #6b8e23;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .notification-dropdown {
+                width: calc(100vw - 40px);
+                right: 20px;
+                left: 20px;
+            }
+            
+            .farm-brand {
+                font-size: 1.1rem;
+            }
+            
+            .status-value {
+                font-size: 2rem;
+            }
+            
+            .status-icon {
+                font-size: 3rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
-        <div class="container">
-            <a class="navbar-brand" href="#">Farm Management System</a>
+    <!-- Enhanced Farm-themed Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark farm-navbar">
+        <div class="container-fluid">
+            <!-- Farm-themed Brand -->
+            <a class="navbar-brand farm-brand" href="#">
+                <i class="bi bi-tree-fill"></i>
+                <i class="bi bi-flower1"></i>
+                Farm Management System
+                <i class="bi bi-flower2"></i>
+                <i class="bi bi-tree-fill"></i>
+            </a>
+            
+            <!-- Enhanced Notification Bell -->
+            <div class="notification-container">
+                <button class="notification-btn" id="notificationBtn" onclick="toggleNotification()">
+                    <i class="bi bi-bell-fill" style="font-size: 1.5rem;"></i>
+                    <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                </button>
+                
+                <!-- Enhanced Notification Dropdown -->
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-header">
+                        <i class="bi bi-bell me-2"></i>Thông báo
+                        <span class="badge bg-primary ms-2" id="unreadCount">0</span>
+                    </div>
+                    <div id="notificationList">
+                        <div class="no-notifications">
+                            <i class="bi bi-inbox" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <p class="mb-0">Chưa có thông báo nào</p>
+                        </div>
+                    </div>
+                    <div class="mark-all-read" id="markAllRead" onclick="markAllNotificationsRead()" style="display: none;">
+                        <i class="bi bi-check-all me-2"></i>Đánh dấu đã đọc tất cả
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 
     <div class="container mt-4">
-        <!-- Weather Forecast Section -->
+        <!-- Enhanced Weather Forecast Section -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
+                <div class="card weather-card h-100 border-0">
+                    <div class="card-header bg-success text-white border-0" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-cloud-sun"></i> Dự báo thời tiết 7 ngày tới
+                            <i class="bi bi-brightness-high ms-2"></i>
+                            <i class="bi bi-cloud-rain ms-2"></i>
                         </h5>
                     </div>
                     <div class="card-body">
                         <div class="row" id="weatherForecast">
                             <div class="col-12 text-center">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                                <p class="mt-2">Đang tải dữ liệu thời tiết...</p>
+                                <div class="loading-spinner mb-3"></div>
+                                <p class="mb-0">Đang tải dữ liệu thời tiết...</p>
                             </div>
                         </div>
                     </div>
@@ -38,25 +720,40 @@
             </div>
         </div>
 
-        <!-- Control Buttons -->
+        <!-- Enhanced Control Section -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Điều khiển</h5>
+                <div class="card farm-control-card">
+                    <div class="card-header bg-success text-white border-0" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-gear-fill"></i> Điều khiển hệ thống trang trại
+                            <i class="bi bi-tree ms-2"></i>
+                        </h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="tempSwitch" checked>
-                                    <label class="form-check-label" for="tempSwitch">Bật/Tắt kiểm tra nhiệt độ</label>
+                                <div class="farm-control-item">
+                                    <label class="farm-switch">
+                                        <input type="checkbox" id="tempSwitch" checked>
+                                        <span class="farm-slider"></span>
+                                    </label>
+                                    <div class="control-label">
+                                        <i class="bi bi-thermometer-half control-icon"></i>
+                                        Kiểm tra nhiệt độ
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="moistureSwitch" checked>
-                                    <label class="form-check-label" for="moistureSwitch">Bật/Tắt kiểm tra độ ẩm</label>
+                                <div class="farm-control-item">
+                                    <label class="farm-switch">
+                                        <input type="checkbox" id="moistureSwitch" checked>
+                                        <span class="farm-slider"></span>
+                                    </label>
+                                    <div class="control-label">
+                                        <i class="bi bi-droplet-half control-icon"></i>
+                                        Kiểm tra độ ẩm
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -65,67 +762,95 @@
             </div>
         </div>
 
-        <!-- Current Status Cards -->
+        <!-- Enhanced Current Status Cards -->
         <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card text-white bg-primary mb-3">
+            <div class="col-md-6 col-lg-4">
+                <div class="card text-white status-card mb-3" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h5 class="card-title">Nhiệt độ hiện tại</h5>
-                                <h2 id="currentTemperature" class="mb-0">--°C</h2>
+                                <h5 class="card-title">
+                                    <i class="bi bi-thermometer-half me-2"></i>Nhiệt độ hiện tại
+                                </h5>
+                                <div class="status-value" id="currentTemperature">--°C</div>
                                 <small class="text-white-50">Cập nhật: <span id="tempUpdateTime">--:--:--</span></small>
                             </div>
-                            <i class="bi bi-thermometer-sun" style="font-size: 3rem;"></i>
+                            <i class="bi bi-thermometer-sun status-icon"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card text-white bg-info mb-3">
+            <div class="col-md-6 col-lg-4">
+                <div class="card text-white status-card mb-3" style="background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h5 class="card-title">Độ ẩm đất</h5>
-                                <h2 id="currentMoisture" class="mb-0">--%</h2>
+                                <h5 class="card-title">
+                                    <i class="bi bi-droplet-half me-2"></i>Độ ẩm đất
+                                </h5>
+                                <div class="status-value" id="currentMoisture">--%</div>
                                 <small class="text-white-50">Cập nhật: <span id="moistureUpdateTime">--:--:--</span></small>
                             </div>
-                            <i class="bi bi-droplet" style="font-size: 3rem;"></i>
+                            <i class="bi bi-droplet status-icon"></i>
                         </div>
                     </div>
-                        <button type="button" class="btn btn-success me-2" id="simulateButton">
-                            <i class="bi bi-play-circle"></i> Mô phỏng dữ liệu
-                        </button>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-warning mb-3">
+            <div class="col-md-6 col-lg-4">
+                <div class="card text-white status-card mb-3" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h5 class="card-title">Số con vật</h5>
-                                <h2 id="currentAnimalCount" class="mb-0">--</h2>
+                                <h5 class="card-title">
+                                    <i class="bi bi-paw me-2"></i>Số con vật
+                                </h5>
+                                <div class="status-value" id="currentAnimalCount">--</div>
                                 <small class="text-white-50">Cập nhật: <span id="animalUpdateTime">--:--:--</span></small>
                             </div>
-                            <i class="bi bi-bug" style="font-size: 3rem;"></i>
+                            <i class="bi bi-paw status-icon"></i>
                         </div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-success me-2" id="simulateButton">
-                    <i class="bi bi-play-circle"></i> Mô phỏng dữ liệu
-                </button>
-                <button type="button" class="btn btn-warning me-2" id="detectAnimalButton">
-                    <i class="bi bi-plus-circle"></i> Phát hiện vật nuôi
-                </button>
             </div>
         </div>
 
-        <!-- Data Table Row -->
+        <!-- Enhanced Action Buttons Row -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card action-card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <button type="button" class="btn btn-success btn-custom w-100" id="simulateButton">
+                                    <i class="bi bi-play-circle"></i> Mô phỏng dữ liệu
+                                </button>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <button type="button" class="btn btn-warning btn-custom w-100" id="detectAnimalButton">
+                                    <i class="bi bi-plus-circle"></i> Phát hiện vật nuôi
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button type="button" class="btn btn-danger btn-custom w-100" id="strangerAlertButton" onclick="simulateStrangerDetection()">
+                                    <i class="bi bi-exclamation-triangle"></i> Kiểm tra người lạ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Data Table Row -->
         <div class="row mb-4">
             <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Dữ liệu cảm biến</h5>
+                <div class="card data-table-card">
+                    <div class="card-header d-flex justify-content-between align-items-center bg-light">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-table"></i> Dữ liệu cảm biến
+                        </h5>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-sm btn-outline-primary active" data-period="day">Ngày</button>
                             <button type="button" class="btn btn-sm btn-outline-primary" data-period="week">Tuần</button>
@@ -135,21 +860,19 @@
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-striped table-hover" id="sensorDataTable">
-                                <thead class="table-dark">
+                                <thead>
                                     <tr>
-                                        <th>Thời gian</th>
-                                        <th>Nhiệt độ (°C)</th>
-                                        <th>Độ ẩm đất (%)</th>
-                                        <th>Số con vật</th>
+                                        <th><i class="bi bi-clock data-icon"></i> Thời gian</th>
+                                        <th><i class="bi bi-thermometer-half data-icon temperature-icon"></i> Nhiệt độ (°C)</th>
+                                        <th><i class="bi bi-droplet-half data-icon moisture-icon"></i> Độ ẩm đất (%)</th>
+                                        <th><i class="bi bi-paw data-icon animal-icon"></i> Số con vật</th>
                                     </tr>
                                 </thead>
                                 <tbody id="sensorDataBody">
                                     <tr>
                                         <td colspan="4" class="text-center">
-                                            <div class="spinner-border text-primary" role="status">
-                                                <span class="visually-hidden">Loading...</span>
-                                            </div>
-                                            <p class="mt-2">Đang tải dữ liệu...</p>
+                                            <div class="loading-spinner mb-3"></div>
+                                            <p class="mb-0">Đang tải dữ liệu...</p>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -159,12 +882,16 @@
                 </div>
             </div>
         </div>
-
     </div>
 
-    <footer class="bg-light text-center text-lg-start mt-5">
-        <div class="text-center p-3 bg-light border-top">
+    <!-- Enhanced Footer -->
+    <footer class="custom-footer text-center text-lg-start mt-5">
+        <div class="text-center p-4">
+            <i class="bi bi-clock me-2"></i>
             <span th:text="${#temporals.format(lastUpdated, 'yyyy-MM-dd HH:mm:ss')}">--:--:--</span>
+            <span class="ms-3">
+                <i class="bi bi-geo-alt me-1"></i>Hệ thống Quản lý Trang trại
+            </span>
         </div>
     </footer>
 
@@ -174,22 +901,265 @@
         let tempMonitoring = true;
         let moistureMonitoring = true;
         let currentPeriod = 'day';
+        
+        // Biến cho hệ thống thông báo
+        let notifications = [];
+        let unreadCount = 0;
+        
+        // Hệ thống thông báo cải tiến
+        function toggleNotification() {
+            const dropdown = document.getElementById('notificationDropdown');
+            const isShown = dropdown.classList.contains('show');
+            
+            if (isShown) {
+                dropdown.classList.remove('show');
+            } else {
+                dropdown.classList.add('show');
+                // Thêm hiệu ứng rung cho nút khi có thông báo mới
+                if (unreadCount > 0) {
+                    const btn = document.getElementById('notificationBtn');
+                    btn.style.animation = 'none';
+                    setTimeout(() => {
+                        btn.style.animation = 'bellShake 0.5s ease-in-out';
+                    }, 10);
+                }
+            }
+        }
+        
+        // Thêm animation cho chuông và pulse
+        if (!document.querySelector('#bell-animation-style')) {
+            const style = document.createElement('style');
+            style.id = 'bell-animation-style';
+            style.textContent = `
+                @keyframes bellShake {
+                    0%, 100% { transform: rotate(0deg); }
+                    10%, 30%, 50%, 70%, 90% { transform: rotate(-5deg); }
+                    20%, 40%, 60%, 80% { transform: rotate(5deg); }
+                }
+                @keyframes pulse {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.1); }
+                    100% { transform: scale(1); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        function markAllNotificationsRead() {
+            notifications.forEach(notification => {
+                notification.read = true;
+            });
+            unreadCount = 0;
+            updateNotificationDisplay();
+        }
+        
+        function updateNotificationDisplay() {
+            const notificationList = document.getElementById('notificationList');
+            const notificationBadge = document.getElementById('notificationBadge');
+            const markAllRead = document.getElementById('markAllRead');
+            const unreadCountEl = document.getElementById('unreadCount');
+            
+            // Cập nhật badge với animation
+            if (unreadCount > 0) {
+                notificationBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                notificationBadge.style.display = 'flex';
+                unreadCountEl.textContent = unreadCount;
+                // Animation cho badge
+                notificationBadge.style.animation = 'pulse 0.5s ease-in-out';
+            } else {
+                notificationBadge.style.display = 'none';
+                unreadCountEl.textContent = '0';
+            }
+            
+            // Hiển thị danh sách thông báo
+            if (notifications.length === 0) {
+                notificationList.innerHTML = `
+                    <div class="no-notifications">
+                        <i class="bi bi-inbox" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p class="mb-0">Chưa có thông báo nào</p>
+                    </div>
+                `;
+                markAllRead.style.display = 'none';
+            } else {
+                notificationList.innerHTML = notifications.map(notification => {
+                    const timeAgo = getTimeAgo(notification.timestamp);
+                    const isUnread = !notification.read;
+                    const alertClass = notification.type === 'stranger' ? 'stranger-alert' : '';
+                    const unreadClass = isUnread ? 'unread' : '';
+                    const iconClass = notification.type === 'stranger' ? 'bi-exclamation-triangle-fill text-danger' : 'bi-info-circle text-primary';
+                    
+                    return `
+                        <div class="notification-item ${alertClass} ${unreadClass}" onclick="markNotificationRead('${notification.id}')">
+                            <div class="d-flex align-items-start">
+                                <i class="${iconClass} me-3" style="margin-top: 2px; font-size: 1.2rem;"></i>
+                                <div class="flex-grow-1">
+                                    <div class="notification-title">
+                                        ${notification.title}
+                                        ${isUnread ? '<i class="bi bi-circle-fill text-success ms-2" style="font-size: 0.5rem;"></i>' : ''}
+                                    </div>
+                                    <div class="notification-message">${notification.message}</div>
+                                    <div class="notification-time">
+                                        <i class="bi bi-clock me-1"></i>${timeAgo}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                if (unreadCount > 0) {
+                    markAllRead.style.display = 'block';
+                } else {
+                    markAllRead.style.display = 'none';
+                }
+            }
+        }
+        
+        function markNotificationRead(notificationId) {
+            const notification = notifications.find(n => n.id === notificationId);
+            if (notification && !notification.read) {
+                notification.read = true;
+                unreadCount = Math.max(0, unreadCount - 1);
+                updateNotificationDisplay();
+            }
+        }
+        
+        function addStrangerDetectionAlert() {
+            const notification = {
+                id: Date.now().toString(),
+                type: 'stranger',
+                title: '🚨 Cảnh báo phát hiện người lạ',
+                message: '📹 Hệ thống camera đã phát hiện có người lạ xâm nhập vào khu vực trang trại lúc ' + new Date().toLocaleTimeString('vi-VN'),
+                timestamp: new Date(),
+                read: false
+            };
+            
+            notifications.unshift(notification); // Thêm vào đầu mảng
+            unreadCount++;
+            
+            // Giới hạn số thông báo hiển thị (chỉ giữ 50 thông báo gần nhất)
+            if (notifications.length > 50) {
+                notifications = notifications.slice(0, 50);
+            }
+            
+            updateNotificationDisplay();
+            
+            // Hiển thị thông báo popup
+            showPopupNotification(notification);
+        }
+        
+        function showPopupNotification(notification) {
+            // Tạo popup thông báo
+            const popup = document.createElement('div');
+            popup.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: white;
+                border-radius: 15px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+                border-left: 5px solid #dc3545;
+                padding: 20px;
+                max-width: 400px;
+                z-index: 10000;
+                animation: slideInRight 0.5s ease;
+            `;
+            
+            popup.innerHTML = `
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 1.5rem; margin-right: 12px;"></i>
+                    <strong style="color: #dc3545; font-size: 1.1rem;">${notification.title}</strong>
+                </div>
+                <div style="color: #666; font-size: 0.95rem; line-height: 1.5;">${notification.message}</div>
+                <button onclick="this.parentElement.remove()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.2rem; color: #999; cursor: pointer;">&times;</button>
+            `;
+            
+            // Thêm animation CSS nếu chưa có
+            if (!document.querySelector('#notification-animations')) {
+                const style = document.createElement('style');
+                style.id = 'notification-animations';
+                style.textContent = `
+                    @keyframes slideInRight {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOutRight {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(popup);
+            
+            // Tự động ẩn sau 7 giây
+            setTimeout(() => {
+                popup.style.animation = 'slideOutRight 0.5s ease';
+                setTimeout(() => {
+                    if (popup.parentNode) {
+                        popup.parentNode.removeChild(popup);
+                    }
+                }, 500);
+            }, 7000);
+        }
+        
+        function getTimeAgo(timestamp) {
+            const now = new Date();
+            const diffMs = now - timestamp;
+            const diffMinutes = Math.floor(diffMs / (1000 * 60));
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            
+            if (diffMinutes < 1) return 'Vừa xong';
+            if (diffMinutes < 60) return `${diffMinutes} phút trước`;
+            if (diffHours < 24) return `${diffHours} giờ trước`;
+            return `${diffDays} ngày trước`;
+        }
+        
+        // Đóng dropdown khi click outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('notificationDropdown');
+            const button = document.getElementById('notificationBtn');
+            
+            if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        // Mô phỏng thông báo phát hiện người lạ (để test)
+        function simulateStrangerDetection() {
+            addStrangerDetectionAlert();
+        }
+        
+        // Tự động kiểm tra thông báo từ server (giả lập)
+        function checkForNotifications() {
+            // Ở đây bạn có thể thay thế bằng API call thực tế để kiểm tra thông báo
+            // Ví dụ: fetch('/api/notifications/unread')
+            
+            // Giả lập random thông báo mỗi 30 giây (chỉ để demo)
+            if (Math.random() < 0.02) { // 2% cơ hội mỗi 30 giây
+                setTimeout(() => {
+                    addStrangerDetectionAlert();
+                }, Math.random() * 5000); // Random từ 0-5 giây
+            }
+        }
+        
+        // Bắt đầu kiểm tra thông báo định kỳ
+        setInterval(checkForNotifications, 30000);
 
         // Hàm lấy dự báo thời tiết
         async function fetchWeatherForecast(lat = 13.7563, lon = 100.5018) {
             const weatherContainer = document.getElementById('weatherForecast');
             weatherContainer.innerHTML = `
                 <div class="col-12 text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-2">Đang tải dữ liệu thời tiết...</p>
+                    <div class="loading-spinner mb-3"></div>
+                    <p class="mb-0">Đang tải dữ liệu thời tiết...</p>
                 </div>`;
 
             try {
                 console.log('Đang gọi API thời tiết...');
 
-                // Sử dụng fetch thay vì axios để đơn giản hóa
                 const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=7`);
 
                 if (!response.ok) {
@@ -215,21 +1185,27 @@
                     const dateStr = date.toLocaleDateString('vi-VN');
                     const weatherCode = daily.weathercode[i];
                     const weatherIcon = getWeatherIcon(weatherCode);
+                    const weatherClass = getWeatherClass(weatherCode);
 
                     const dayElement = document.createElement('div');
-                    dayElement.className = 'col-md-4 col-6 mb-3';
+                    dayElement.className = 'col-md-6 col-lg-4 mb-4';
                     dayElement.innerHTML = `
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <h6 class="card-subtitle mb-2 text-muted">${dayName}</h6>
-                                <div class="mb-2">${dateStr}</div>
-                                <div class="mb-2">${weatherIcon}</div>
-                                <div class="mb-1">
-                                    <span class="text-danger fw-bold">${Math.round(daily.temperature_2m_max[i])}°C</span> /
-                                    <span class="text-primary">${Math.round(daily.temperature_2m_min[i])}°C</span>
+                        <div class="card weather-card ${weatherClass} h-100 border-0">
+                            <div class="card-body text-center text-white">
+                                <h6 class="card-subtitle mb-2 fw-bold">${dayName}</h6>
+                                <div class="mb-3 fw-bold">${dateStr}</div>
+                                <div class="mb-3">${weatherIcon}</div>
+                                <div class="mb-2">
+                                    <span class="fs-4 fw-bold">${Math.round(daily.temperature_2m_max[i])}°C</span>
+                                    <span class="ms-2">/ ${Math.round(daily.temperature_2m_min[i])}°C</span>
                                 </div>
-                                <div class="text-muted small">
-                                    <i class="bi bi-droplet"></i> ${daily.precipitation_sum[i] || 0}mm
+                                <div class="small mb-2">
+                                    <i class="bi bi-droplet-fill me-1"></i> ${daily.precipitation_sum[i] || 0}mm
+                                </div>
+                                <div class="mt-3">
+                                    ${weatherClass === 'sunny' ? '☀️ Nắng đẹp' :
+                                      weatherClass === 'cloudy' ? '☁️ Có mây' :
+                                      weatherClass === 'rainy' ? '🌧️ Có mưa' : '⛈️ Bão'}
                                 </div>
                             </div>
                         </div>
@@ -240,28 +1216,36 @@
                 console.error('Lỗi khi lấy dữ liệu thời tiết:', error);
                 weatherContainer.innerHTML = `
                     <div class="col-12 text-center text-danger">
-                        <i class="bi bi-cloud-slash" style="font-size: 2rem;"></i>
-                        <p class="mt-2">Không thể tải dữ liệu thời tiết</p>
-                        <p class="small text-muted">${error.message || 'Vui lòng thử lại sau'}</p>
-                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="fetchWeatherForecast()">
+                        <i class="bi bi-cloud-slash" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <p class="mb-2" style="font-size: 1.1rem;">Không thể tải dữ liệu thời tiết</p>
+                        <p class="small text-muted mb-3">${error.message || 'Vui lòng thử lại sau'}</p>
+                        <button class="btn btn-outline-primary btn-sm" onclick="fetchWeatherForecast()">
                             <i class="bi bi-arrow-clockwise"></i> Thử lại
                         </button>
                     </div>`;
             }
         }
 
-        // Hàm chuyển đổi mã thời tiết thành icon
+        // Hàm chuyển đổi mã thời tiết thành icon sinh động
         function getWeatherIcon(code) {
             // Dựa trên mã thời tiết từ Open-Meteo
-            if (code >= 95) return '<i class="bi bi-cloud-lightning-rain" style="font-size: 2rem; color: #6c757d;"></i>';
-            if (code >= 85) return '<i class="bi bi-cloud-snow" style="font-size: 2rem; color: #6c757d;"></i>';
-            if (code >= 71) return '<i class="bi bi-cloud-sleet" style="font-size: 2rem; color: #6c757d;"></i>';
-            if (code >= 61) return '<i class="bi bi-cloud-rain-heavy" style="font-size: 2rem; color: #0d6efd;"></i>';
-            if (code >= 51) return '<i class="bi bi-cloud-drizzle" style="font-size: 2rem; color: #0d6efd;"></i>';
-            if (code >= 45) return '<i class="bi bi-cloud-fog" style="font-size: 2rem; color: #6c757d;"></i>';
-            if (code >= 3) return '<i class="bi bi-clouds" style="font-size: 2rem; color: #6c757d;"></i>';
-            if (code >= 1) return '<i class="bi bi-cloud" style="font-size: 2rem; color: #6c757d;"></i>';
-            return '<i class="bi bi-sun" style="font-size: 2rem; color: #ffc107;"></i>'; // Trời quang
+            if (code >= 95) return '<i class="bi bi-cloud-lightning-rain weather-icon stormy"></i>'; // Bão
+            if (code >= 85) return '<i class="bi bi-snow weather-icon cloudy"></i>'; // Tuyết
+            if (code >= 71) return '<i class="bi bi-cloud-sleet weather-icon rainy"></i>'; // Mưa tuyết
+            if (code >= 61) return '<i class="bi bi-cloud-rain-heavy weather-icon rainy"></i>'; // Mưa to
+            if (code >= 51) return '<i class="bi bi-cloud-drizzle weather-icon rainy"></i>'; // Mưa phùn
+            if (code >= 45) return '<i class="bi bi-cloud-fog weather-icon cloudy"></i>'; // Sương mù
+            if (code >= 3) return '<i class="bi bi-clouds weather-icon cloudy"></i>'; // Nhiều mây
+            if (code >= 1) return '<i class="bi bi-cloud weather-icon cloudy"></i>'; // Có mây
+            return '<i class="bi bi-brightness-high weather-icon sunny"></i>'; // Trời quang
+        }
+        
+        // Hàm xác định class CSS cho thời tiết
+        function getWeatherClass(code) {
+            if (code >= 95) return 'stormy';
+            if (code >= 61) return 'rainy';
+            if (code >= 1) return 'cloudy';
+            return 'sunny';
         }
 
         // Hàm lấy vị trí hiện tại
@@ -271,12 +1255,10 @@
                     position => {
                         const { latitude, longitude } = position.coords;
                         console.log('Vị trí hiện tại:', { latitude, longitude });
-                        // Gọi hàm fetchWeatherForecast với vị trí hiện tại
                         fetchWeatherForecast(latitude, longitude);
                     },
                     error => {
                         console.error('Lỗi khi lấy vị trí:', error);
-                        // Sử dụng vị trí mặc định nếu không lấy được vị trí
                         fetchWeatherForecast(13.7563, 100.5018); // Tọa độ mặc định (Bangkok)
                     }
                 );
@@ -294,7 +1276,7 @@
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="4" class="text-center text-muted">
-                            <i class="bi bi-info-circle"></i> Không có dữ liệu
+                            <i class="bi bi-info-circle me-2"></i>Không có dữ liệu
                         </td>
                     </tr>`;
                 return;
@@ -302,21 +1284,81 @@
 
             tbody.innerHTML = '';
 
-            tableData.forEach(item => {
+            tableData.forEach((item, index) => {
                 const row = document.createElement('tr');
                 const timestamp = new Date(item.timestamp);
+                
+                // Thêm hiệu ứng loading cho từng dòng
+                row.style.animation = `fadeInUp 0.5s ease ${index * 0.1}s both`;
+                
+                // Tạo màu sắc động cho nhiệt độ
+                let tempColor = 'bg-danger';
+                if (item.temperature >= 20 && item.temperature <= 25) {
+                    tempColor = 'bg-success';
+                } else if (item.temperature >= 26 && item.temperature <= 30) {
+                    tempColor = 'bg-warning';
+                }
+                
+                // Tạo màu sắc động cho độ ẩm
+                let moistureColor = 'bg-primary';
+                if (item.soilMoisture >= 60 && item.soilMoisture <= 80) {
+                    moistureColor = 'bg-info';
+                } else if (item.soilMoisture < 50) {
+                    moistureColor = 'bg-warning';
+                }
 
                 row.innerHTML = `
-                    <td>${timestamp.toLocaleString('vi-VN')}</td>
-                    <td><span class="badge bg-danger">${item.temperature.toFixed(1)}°C</span></td>
-                    <td><span class="badge bg-primary">${item.soilMoisture.toFixed(1)}%</span></td>
-                    <td><span class="badge bg-warning">${item.animalCount}</span></td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-clock me-2 text-muted"></i>
+                            <div>
+                                <div class="fw-bold">${timestamp.toLocaleDateString('vi-VN')}</div>
+                                <small class="text-muted">${timestamp.toLocaleTimeString('vi-VN')}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-custom ${tempColor} d-flex align-items-center justify-content-center" style="min-width: 80px;">
+                            <i class="bi bi-thermometer-half me-1"></i>
+                            ${item.temperature.toFixed(1)}°C
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-custom ${moistureColor} d-flex align-items-center justify-content-center" style="min-width: 80px;">
+                            <i class="bi bi-droplet-half me-1"></i>
+                            ${item.soilMoisture.toFixed(1)}%
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-custom bg-warning d-flex align-items-center justify-content-center" style="min-width: 80px;">
+                            <i class="bi bi-paw me-1"></i>
+                            ${item.animalCount}
+                        </span>
+                    </td>
                 `;
 
                 tbody.appendChild(row);
             });
-        }
             
+            // Thêm CSS animation nếu chưa có
+            if (!document.querySelector('#table-animations')) {
+                const style = document.createElement('style');
+                style.id = 'table-animations';
+                style.textContent = `
+                    @keyframes fadeInUp {
+                        from {
+                            opacity: 0;
+                            transform: translateY(20px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
             
         // Hàm cập nhật dữ liệu
         function updateData() {
@@ -374,12 +1416,11 @@
                     document.getElementById('sensorDataBody').innerHTML = `
                         <tr>
                             <td colspan="4" class="text-center text-danger">
-                                Lỗi kết nối: ${error.message}
+                                <i class="bi bi-exclamation-triangle"></i> Lỗi kết nối: ${error.message}
                             </td>
                         </tr>`;
                 });
         }
-
 
         // Sự kiện khi chọn khoảng thời gian
         document.querySelectorAll('[data-period]').forEach(button => {
@@ -408,81 +1449,6 @@
             updateData();
         });
 
-        // Hàm lấy dự báo thời tiết
-        async function fetchWeatherForecast(lat = 13.7563, lon = 100.5018) {
-            const weatherContainer = document.getElementById('weatherForecast');
-            weatherContainer.innerHTML = `
-                <div class="col-12 text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-2">Đang tải dữ liệu thời tiết...</p>
-                </div>`;
-                
-            try {
-                console.log('Đang gọi API thời tiết...');
-                
-                // Sử dụng fetch thay vì axios để đơn giản hóa
-                const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=7`);
-                
-                if (!response.ok) {
-                    throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log('Dữ liệu thời tiết nhận được:', data);
-                
-                const { daily } = data;
-                
-                if (!daily || !daily.time || !daily.time.length) {
-                    console.error('Dữ liệu thời tiết không hợp lệ hoặc thiếu dữ liệu');
-                    throw new Error('Không có dữ liệu thời tiết');
-                }
-                
-                weatherContainer.innerHTML = '';
-                
-                // Thêm thông tin thời tiết cho 7 ngày
-                for (let i = 0; i < 7; i++) {
-                    const date = new Date(daily.time[i]);
-                    const dayName = date.toLocaleDateString('vi-VN', { weekday: 'long' });
-                    const dateStr = date.toLocaleDateString('vi-VN');
-                    const weatherCode = daily.weathercode[i];
-                    const weatherIcon = getWeatherIcon(weatherCode);
-                    
-                    const dayElement = document.createElement('div');
-                    dayElement.className = 'col-md-4 col-6 mb-3';
-                    dayElement.innerHTML = `
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <h6 class="card-subtitle mb-2 text-muted">${dayName}</h6>
-                                <div class="mb-2">${dateStr}</div>
-                                <div class="mb-2">${weatherIcon}</div>
-                                <div class="mb-1">
-                                    <span class="text-danger fw-bold">${Math.round(daily.temperature_2m_max[i])}°C</span> / 
-                                    <span class="text-primary">${Math.round(daily.temperature_2m_min[i])}°C</span>
-                                </div>
-                                <div class="text-muted small">
-                                    <i class="bi bi-droplet"></i> ${daily.precipitation_sum[i] || 0}mm
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    weatherContainer.appendChild(dayElement);
-                }
-            } catch (error) {
-                console.error('Lỗi khi lấy dữ liệu thời tiết:', error);
-                weatherContainer.innerHTML = `
-                    <div class="col-12 text-center text-danger">
-                        <i class="bi bi-cloud-slash" style="font-size: 2rem;"></i>
-                        <p class="mt-2">Không thể tải dữ liệu thời tiết</p>
-                        <p class="small text-muted">${error.message || 'Vui lòng thử lại sau'}</p>
-                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="fetchWeatherForecast()">
-                            <i class="bi bi-arrow-clockwise"></i> Thử lại
-                        </button>
-                    </div>`;
-            }
-        }
-
         // Sự kiện nút mô phỏng
         document.getElementById('simulateButton').addEventListener('click', function() {
             simulateSensorData();
@@ -505,7 +1471,6 @@
 
                 if (response.ok) {
                     console.log('Phát hiện vật nuôi thành công');
-                    // Cập nhật dữ liệu ngay lập tức sau khi phát hiện
                     updateData();
                 } else {
                     console.error('Lỗi khi phát hiện vật nuôi:', response.status);
@@ -528,7 +1493,6 @@
 
                 if (response.ok) {
                     console.log('Dữ liệu đã được gửi thành công');
-                    // Cập nhật dữ liệu ngay lập tức sau khi gửi thành công
                     updateData();
                 } else {
                     console.error('Lỗi khi gửi dữ liệu:', response.status);
@@ -547,34 +1511,11 @@
             console.log(`Mô phỏng dữ liệu: Nhiệt độ ${temperature}°C, Độ ẩm ${moisture}%`);
             sendSensorData(temperature, moisture);
         }
-        
-
-        // Hàm lấy vị trí hiện tại
-        function getCurrentLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        const { latitude, longitude } = position.coords;
-                        console.log('Vị trí hiện tại:', { latitude, longitude });
-                        // Gọi hàm fetchWeatherForecast với vị trí hiện tại
-                        fetchWeatherForecast(latitude, longitude);
-                    },
-                    error => {
-                        console.error('Lỗi khi lấy vị trí:', error);
-                        // Sử dụng vị trí mặc định nếu không lấy được vị trí
-                        fetchWeatherForecast(13.7563, 100.5018); // Tọa độ mặc định (Bangkok)
-                    }
-                );
-            } else {
-                console.log('Trình duyệt không hỗ trợ Geolocation');
-                fetchWeatherForecast(13.7563, 100.5018); // Tọa độ mặc định (Bangkok)
-            }
-        }
 
         // Khởi tạo khi trang được tải
         document.addEventListener('DOMContentLoaded', function() {
             updateData();
-            getCurrentLocation(); // Sử dụng hàm getCurrentLocation thay vì gọi trực tiếp fetchWeatherForecast
+            getCurrentLocation();
 
             // Cập nhật dữ liệu mỗi 30 giây
             setInterval(updateData, 30000);
